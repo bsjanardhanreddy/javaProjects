@@ -1,0 +1,13 @@
+package com.jsp.exp.project;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class SpringbootProjectExp4Application {
+
+	public static void main(String[] args) {
+		SpringApplication.run(SpringbootProjectExp4Application.class, args);
+	}
+
+}

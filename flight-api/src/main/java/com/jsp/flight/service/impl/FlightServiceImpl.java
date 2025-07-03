@@ -1,0 +1,109 @@
+package com.jsp.flight.service.impl;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
+
+import com.jsp.flight.dto.FlightSearchRequest;
+import com.jsp.flight.entity.FlightInfo;
+import com.jsp.flight.exception.FlightNotFoundException;
+import com.jsp.flight.repository.FlightInfoRepository;
+import com.jsp.flight.service.FlightService;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class FlightServiceImpl implements FlightService 
+{
+	
+	private final FlightInfoRepository repository;
+	private final RestTemplate restTemplate = new RestTemplate();
+	private final String apiUrl = "https://flightapigateway.iweensoft.com/api/flights/search";
+
+	public List<FlightInfo> fetchAndStoreFlights(FlightSearchRequest request) 
+	{
+	    HttpHeaders headers = new HttpHeaders();
+	    headers.setContentType(MediaType.APPLICATION_JSON);
+	    headers.set("gw-flightapi-key", "JAVA-ASSIGMENT20250524");
+	    headers.set("clientId", "JAVA-ASSIGMENT20250524");  // mandatory header
+	    
+	    System.out.println("Received Date from Flight Controller: <====>"+request);
+
+	    HttpEntity<FlightSearchRequest> httpEntity = new HttpEntity<>(request, headers);
+
+	    try 
+	    {
+	        ResponseEntity<Map> response = restTemplate.exchange(apiUrl, HttpMethod.POST, httpEntity, Map.class);
+	        Map responseBody = response.getBody();
+	        System.out.println("Responce body from 3rd party API"+responseBody);
+
+	        // ✅ Validate response is not null and contains 'data'
+	        if (responseBody == null || responseBody.get("data") == null) 
+	        {
+	            throw new RuntimeException("Invalid API response: 'data' field is missing or null");
+	        }
+
+	        Map data = (Map) responseBody.get("data");
+
+	        if (data.get("onwardFlights") == null) 
+	        {
+	            throw new RuntimeException("Invalid API response: 'onwardFlights' field is missing or null");
+	        }
+
+	        List<Map<String, Object>> flights = (List<Map<String, Object>>) data.get("onwardFlights");
+
+	        List<FlightInfo> savedFlights = new ArrayList<>();
+	        for (Map<String, Object> flight : flights) 
+	        {
+	            FlightInfo info = new FlightInfo();
+	            info.setGwFlightKey((String) flight.get("gwFlightKey"));
+	            info.setCarrier((String) flight.get("carrier"));
+	            info.setFlightNumber((String) flight.get("flightNumber"));
+	            info.setFareType((String) flight.get("fareType"));
+	            info.setTotalAmount(Double.parseDouble(flight.get("totalAmount").toString()));
+	            savedFlights.add(repository.save(info));
+	        }
+	        return savedFlights;
+	    } 
+	    catch (RestClientException | NullPointerException e)
+	    {
+	        e.printStackTrace();
+	        throw new RuntimeException("Error fetching or parsing flight data", e);
+	    }
+	}
+
+
+	public FlightInfo getFlightByNumber(String flightNumber) 
+	{
+		return repository.findByFlightNumber(flightNumber)
+				.orElseThrow(() -> new FlightNotFoundException("Flight not found with number: " + flightNumber));
+	}
+
+	public List<FlightInfo> getAllFlightsSortedByPrice() 
+	{
+		return repository.findAll().stream().sorted(Comparator.comparingDouble(FlightInfo::getTotalAmount)).toList();
+	}
+
+	public FlightInfo getMaxPricedFlight() 
+	{
+		return repository.findAll().stream().max(Comparator.comparingDouble(FlightInfo::getTotalAmount))
+				.orElseThrow(() -> new FlightNotFoundException("No flight data found."));
+	}
+
+	public FlightInfo getMinPricedFlight() 
+	{
+		return repository.findAll().stream().min(Comparator.comparingDouble(FlightInfo::getTotalAmount))
+				.orElseThrow(() -> new FlightNotFoundException("No flight data found."));
+	}
+}

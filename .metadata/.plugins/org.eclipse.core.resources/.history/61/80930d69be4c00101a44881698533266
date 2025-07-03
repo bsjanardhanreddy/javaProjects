@@ -1,0 +1,44 @@
+package com.jsp.exp.project;
+
+import com.jsp.exp.project.controller.CommonController;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Scope;
+import org.springframework.web.client.RestTemplate;
+
+@SpringBootApplication
+public class SpringbootProjectExp4Application 
+{
+
+    private final CommonController commonController;
+	@Value("${appvalue}")
+	public static String value;
+
+    SpringbootProjectExp4Application(CommonController commonController) {
+        this.commonController = commonController;
+    }
+	
+	public static void main(String[] args)
+	{
+		
+		System.out.println(value);
+		
+		SpringApplication.run(SpringbootProjectExp4Application.class, args);
+	}
+	
+	@Bean
+	public RestTemplate getRestTemplate() 
+	{
+		return new RestTemplate();
+	}
+	
+	@Bean("getRestTemplateobj")
+	public RestTemplate getRestTemplateObject() 
+	{
+		return new RestTemplate();
+	}
+	
+
+}

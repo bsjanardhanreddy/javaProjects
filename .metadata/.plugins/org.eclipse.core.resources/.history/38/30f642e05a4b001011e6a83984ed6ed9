@@ -1,0 +1,27 @@
+package com.jsp.exp.project.service.impl;
+
+import org.springframework.http.HttpMethod;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import com.jsp.exp.project.dto.AppResponceDTO;
+import com.jsp.exp.project.service.GetWorqueueService;
+
+import lombok.AllArgsConstructor;
+
+@AllArgsConstructor
+@Service
+public class GetWorkqueueServiceImpl implements GetWorqueueService
+{
+	private final RestTemplate restTemplate;
+	private final String apiUrl = "http://localhost:8080/workqueue/get-all-channels";
+
+
+	@Override
+	public AppResponceDTO getWorqueueChannels() 
+	{
+		restTemplate.exchange(apiUrl, HttpMethod.POST, null, AppResponceDTO.class);
+		return null;
+	}
+	
+}

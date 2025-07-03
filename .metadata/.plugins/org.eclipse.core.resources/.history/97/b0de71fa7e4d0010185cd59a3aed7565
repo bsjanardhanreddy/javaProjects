@@ -1,0 +1,218 @@
+package com.jsp.workqueue.service.impl;
+
+import java.math.BigInteger;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+
+import com.jsp.workqueue.dto.AppResponceDTO;
+import com.jsp.workqueue.dto.ChannelDTO;
+import com.jsp.workqueue.dto.ChannelUpdateDTO;
+import com.jsp.workqueue.entity.ChannelEntity;
+import com.jsp.workqueue.repository.ChannelRepository;
+import com.jsp.workqueue.service.ChannelService;
+
+@Service
+public class ChannelServiceImpl implements ChannelService 
+{
+	@Autowired
+	ChannelRepository channelRepository;
+
+	@Override
+	public AppResponceDTO processCreate(ChannelDTO ChannelDTO) {
+
+		AppResponceDTO appResponceDTO;
+
+		try {
+			ChannelEntity channelEntity = new ChannelEntity();
+
+//			channelEntity.setAltKey(new BigInteger("123"));
+			channelEntity.setConfigName(ChannelDTO.getConfigName());
+			channelEntity.setType(ChannelDTO.getType());
+			channelEntity.setRegion(ChannelDTO.getRegion());
+			channelEntity.setApiKey(ChannelDTO.getApiKey());
+			channelEntity.setSecretKey(ChannelDTO.getSecurityKey());
+			channelEntity.setCretedDate(new Date());
+
+			channelEntity = channelRepository.save(channelEntity);
+
+			appResponceDTO = new AppResponceDTO("SUCCESS", "200", channelEntity, null);
+		} catch (Exception e) {
+			e.printStackTrace();
+			appResponceDTO = new AppResponceDTO("FAILURE", "500", null, e.getLocalizedMessage());
+
+		}
+		return appResponceDTO;
+	}
+
+	@Override
+	public AppResponceDTO getAll() 
+	{
+		AppResponceDTO responce=null;
+		try 
+		{
+			/*
+			 * 1st-way List<ChannelEntity> all = channelRepository.findAll();
+			 * 
+			 * 2nd-way Sort byDesc = Sort.by(Sort.Direction.DESC,"configName");
+			 * List<ChannelEntity> all = channelRepository.findAll(byDesc);
+			 * 
+			 */
+			
+			Sort byDesc = Sort.by(Sort.Direction.DESC,"configName").ascending();
+			PageRequest pageRecords = PageRequest.of(0, 4, byDesc);
+			Page<ChannelEntity> all = channelRepository.findAll(pageRecords);
+			responce=new AppResponceDTO("SUCCESS", "200", all, null);
+			
+			
+		} 
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			responce = new AppResponceDTO("FAILURE", "500", null, e.getLocalizedMessage());
+		}
+		return responce;
+	}
+
+	@Override
+	public  AppResponceDTO  getById(BigInteger altKey)
+	{
+		AppResponceDTO responce=null;
+		try 
+		{
+			
+			Optional<ChannelEntity> byId = channelRepository.findById(altKey);
+			
+			ChannelEntity channelEntity = byId.get();
+			responce=new AppResponceDTO("SUCCESS", "200", channelEntity, null);
+			
+		} 
+		catch (Exception e)
+		{
+			responce = new AppResponceDTO("FAILURE", "500", null, e.getLocalizedMessage());
+		}
+		
+		return responce;
+	}
+
+	@Override
+	public AppResponceDTO getByNameAndType(String configName, String type) 
+	{
+		
+		AppResponceDTO responce=null;
+		try 
+		{
+			//List<ChannelEntity> channelByConfigNameAndType = channelRepository.getChannelByConfigNameAndType(configName,type);
+			List<ChannelEntity> channelByConfigNameAndType = channelRepository.findByConfigNameAndType(configName,type);
+			
+			responce=new AppResponceDTO("SUCCESS", "200", channelByConfigNameAndType, null);
+			
+		} 
+		catch (Exception e)
+		{
+			responce = new AppResponceDTO("FAILURE", "500", null, e.getLocalizedMessage());
+		}
+		
+		return responce;
+	}
+	
+	@Override
+	public AppResponceDTO getChannelConfigs(List<String> configNames) 
+	{
+		
+		AppResponceDTO responce=null;
+		try 
+		{
+			//List<ChannelEntity> listOfConfigName1 = channelRepository.getChannelByConfigs(configNames);
+			List<ChannelEntity> listOfConfigName = channelRepository.findByConfigNameIn(configNames);
+			
+			responce=new AppResponceDTO("SUCCESS", "200", listOfConfigName, null);
+			
+		} 
+		catch (Exception e)
+		{
+			responce = new AppResponceDTO("FAILURE", "500", null, e.getLocalizedMessage());
+		}
+		
+		return responce;
+	}
+
+	@Override
+	public AppResponceDTO getChannelByRegionAndConfigName(String region, String configName) 
+	{
+		AppResponceDTO responce=null;
+		try 
+		{
+			
+			//List<ChannelEntity> channelByRegionAndConfigName = channelRepository.findByRegionAndConfigName(region, configName);
+			List<ChannelEntity> channelByRegionAndConfigName = channelRepository.findByRegionAndConfigName(region, configName);
+			
+			responce=new AppResponceDTO("SUCCESS", "200", channelByRegionAndConfigName, null);
+			
+		} 
+		catch (Exception e)
+		{
+			responce = new AppResponceDTO("FAILURE", "500", null, e.getLocalizedMessage());
+		}
+		
+		return responce;
+	}
+
+	@Override
+	public AppResponceDTO updateChannel(ChannelUpdateDTO channelUpdateDTO) 
+	{
+		AppResponceDTO responce=null;
+		try 
+		{
+			Integer updateSelectedFieldsByAltKey = channelRepository.updateFieldsByAltKey(
+													channelUpdateDTO.getConfigName(), 
+													channelUpdateDTO.getApiKey(),
+													channelUpdateDTO.getSecretKey(),
+													new Date(),
+													channelUpdateDTO.getAltKey());
+			
+
+			responce = new AppResponceDTO("SUCCESS", "200", updateSelectedFieldsByAltKey, null);
+		} 
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			responce = new AppResponceDTO("FAILURE", "500", null, e.getLocalizedMessage());
+
+		}
+		return responce;
+	}
+
+	@Override
+	public AppResponceDTO updateChannelStatus(BigInteger altKey, boolean status) 
+	{
+		AppResponceDTO responce=null;
+		try 
+		{
+			
+			int updateChannelStatus = channelRepository.updateChannelStatus( status,new Date(),altKey );
+			 if (updateChannelStatus > 0) 
+			 {
+				 responce= new AppResponceDTO("SUCCESS","200", "Channel status updated successfully", null);
+			 } 
+			 else
+			 {
+				 responce= new AppResponceDTO("FAILURE","500", "Channel not found or update failed", null);
+			 }
+		} 
+		catch (Exception e)
+		{
+			responce = new AppResponceDTO("FAILURE", "500", null, e.getLocalizedMessage());
+		}
+		
+		return responce;
+	}
+
+	
+}

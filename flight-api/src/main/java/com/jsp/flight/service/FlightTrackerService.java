@@ -1,0 +1,7 @@
+package com.jsp.flight.service;
+
+
+public interface FlightTrackerService 
+{
+    Object getLiveFlightData();
+}

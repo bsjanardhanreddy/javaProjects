@@ -1,0 +1,11 @@
+package com.jsp.exp.project.service;
+
+import com.jsp.exp.project.dto.AppResponceDTO;
+import com.jsp.exp.project.dto.ChannelDTO;
+
+public interface CommonService 
+{
+	AppResponceDTO processCreate(ChannelDTO appResponceDTO);
+	AppResponceDTO getWorqueueChannels();
+
+}

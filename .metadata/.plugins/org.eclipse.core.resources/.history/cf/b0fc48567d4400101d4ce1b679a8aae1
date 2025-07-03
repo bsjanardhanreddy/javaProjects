@@ -1,0 +1,5 @@
+package com.jsp.aws.files.controller;
+
+public class S3Controller {
+
+}

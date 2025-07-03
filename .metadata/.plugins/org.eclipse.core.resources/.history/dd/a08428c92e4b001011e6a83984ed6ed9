@@ -1,0 +1,15 @@
+package com.jsp.exp.project.service.impl;
+
+import com.jsp.exp.project.dto.AppResponceDTO;
+import com.jsp.exp.project.service.GetWorqueueService;
+
+public class GetWorkqueueServiceImpl implements GetWorqueueService
+{
+
+	@Override
+	public AppResponceDTO getWorqueueService() 
+	{
+		return null;
+	}
+	
+}

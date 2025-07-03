@@ -1,0 +1,5 @@
+package com.jsp.exp.project.service;
+
+public interface CommonService {
+
+}

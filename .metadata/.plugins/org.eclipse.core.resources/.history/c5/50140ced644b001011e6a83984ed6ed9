@@ -1,0 +1,23 @@
+package com.jsp.flight.service.impl;
+
+import com.jsp.flight.service.FlightTrackerService;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.ResponseEntity;
+
+@Service
+public class FlightTrackerServiceImpl implements FlightTrackerService {
+
+    private final RestTemplate restTemplate = new RestTemplate();
+    private static final String OPEN_SKY_URL = "https://opensky-network.org/api/states/all";
+
+    @Override
+    public Object getLiveFlightData() {
+        try {
+            ResponseEntity<Object> response = restTemplate.getForEntity(OPEN_SKY_URL, Object.class);
+            return response.getBody();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to fetch live flight data from OpenSky", e);
+        }
+    }
+}

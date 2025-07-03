@@ -1,0 +1,42 @@
+package com.jsp.exp.project.service.impl;
+
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import com.jsp.exp.project.dto.AppResponceDTO;
+import com.jsp.exp.project.dto.ChannelDTO;
+import com.jsp.exp.project.service.CommonService;
+
+import lombok.AllArgsConstructor;
+@Service
+@AllArgsConstructor
+public class CommonServiceImpl implements CommonService 
+{
+	private final RestTemplate restTemplate;
+	private final String apiUrl = "http://localhost:8080/workqueue/create";
+
+
+	@Override
+	public AppResponceDTO processCreate(ChannelDTO channelDTO) 
+	{
+		try
+		{
+			HttpEntity<ChannelDTO> httpEntity=new HttpEntity<>(channelDTO);
+			ResponseEntity<AppResponceDTO> responce
+			= restTemplate.exchange(apiUrl, HttpMethod.POST, httpEntity,AppResponceDTO.class);
+			
+			System.out.println(responce.getBody());
+
+		}
+		catch (Exception e) 
+		{
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+}

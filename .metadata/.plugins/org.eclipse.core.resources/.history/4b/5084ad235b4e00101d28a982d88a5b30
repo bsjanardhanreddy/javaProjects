@@ -1,0 +1,93 @@
+package com.jsp.exp.project.service.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import com.jsp.exp.project.dto.AppResponceDTO;
+import com.jsp.exp.project.dto.ChannelDTO;
+import com.jsp.exp.project.service.CommonService;
+
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+@Service
+@AllArgsConstructor
+@NoArgsConstructor
+
+
+public class CommonServiceImpl implements CommonService 
+{
+	
+	public static final Logger LOGGER=null;
+			LoggerFactory.getLogger(null);
+	@Autowired
+	@Qualifier("getRestTemplateobj")
+	public  RestTemplate restTemplate;
+//	
+	 public CommonServiceImpl commonServiceImpl;
+//	 @Value("${appvalue}")
+//	    private String appValue;
+//	 
+//	 
+//	 public void init() 
+//	 {
+//		 
+//	 }
+//	
+//	 public CommonServiceImpl(@Qualifier("getRestTemplateobj") RestTemplate restTemplate) {
+//       this.restTemplate = restTemplate;
+//   }
+	
+	// Keep URL as a constant
+    private static final String API_URL = "http://localhost:8080/workqueue/";
+
+
+	@Override
+	public AppResponceDTO processCreate(ChannelDTO channelDTO) 
+	{
+	    final String ENDPOINT_URL = "create";
+	    try 
+	    {
+	        HttpEntity<ChannelDTO> httpEntity = new HttpEntity<>(channelDTO);
+	        ResponseEntity<AppResponceDTO> response
+	        = restTemplate.exchange(API_URL+ENDPOINT_URL,HttpMethod.POST,httpEntity,AppResponceDTO.class);
+	        return response.getBody();
+	    } 
+	    catch (Exception e) 
+	    {
+	        AppResponceDTO errorResponse = new AppResponceDTO();
+	        errorResponse.setStatus("FAILURE");
+	        errorResponse.setStatusCode("500");
+	        errorResponse.setData(null);
+	        errorResponse.setError("Failed to process create request: " + e.getMessage());
+	        return errorResponse;
+	    }
+	}
+
+	 @Override
+	    public AppResponceDTO getChannels()
+	    {
+	    	final String ENDPOINT_URL = "get-all-channels";
+	        try 
+	        {
+	            ResponseEntity<AppResponceDTO> response 
+	            = restTemplate.exchange( API_URL+ENDPOINT_URL, HttpMethod.GET, null,AppResponceDTO.class);
+	            return response.getBody(); //  Return the fetched AppResponceDTO
+	        } 
+	        catch (Exception e) 
+	        {
+	            // Construct and return error response DTO
+	            AppResponceDTO errorResponse = new AppResponceDTO();
+	            errorResponse.setStatus("FAILURE");
+	            errorResponse.setStatusCode("500");
+	            errorResponse.setData(null);
+	            errorResponse.setError("Unable to fetch workqueue channels: " + e.getMessage());
+	            return errorResponse;
+	        }
+	    }
+
+}

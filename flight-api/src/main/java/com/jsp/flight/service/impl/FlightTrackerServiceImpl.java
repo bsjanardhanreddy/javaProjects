@@ -1,0 +1,55 @@
+package com.jsp.flight.service.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import com.jsp.flight.service.FlightTrackerService;
+
+@Service
+public class FlightTrackerServiceImpl implements FlightTrackerService 
+{
+    private final RestTemplate restTemplate = new RestTemplate();
+    private static final String OPEN_SKY_URL = "https://opensky-network.org/api/states/all";
+
+    @Override
+    public Object getLiveFlightData()
+    {
+        try {
+            ResponseEntity<Map> response = restTemplate.getForEntity(OPEN_SKY_URL, Map.class);
+            Map<String, Object> responseBody = response.getBody();
+
+            if (responseBody == null || !responseBody.containsKey("states")) {
+                throw new RuntimeException("Invalid response: 'states' not found");
+            }
+
+            // Extract the 'states' list
+            List<List<Object>> states = (List<List<Object>>) responseBody.get("states");
+
+            System.out.println("Total flights found: " + states.size());
+
+            // Print each flight's basic info
+            for (List<Object> flight : states)
+            {
+                System.out.println("====================================");
+                System.out.println("ICAO24: " + flight.get(0));        // Unique aircraft address
+                System.out.println("Callsign: " + flight.get(1));      // Flight callsign
+                System.out.println("Origin Country: " + flight.get(2));
+                System.out.println("Latitude: " + flight.get(6));
+                System.out.println("Longitude: " + flight.get(5));
+                System.out.println("Altitude: " + flight.get(7));
+                System.out.println("Velocity: " + flight.get(9));
+            }
+
+            return responseBody;
+
+        } catch (Exception e) 
+        {
+            throw new RuntimeException("Failed to fetch or process flight data", e);
+        }
+    }
+
+}

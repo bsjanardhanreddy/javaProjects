@@ -1,0 +1,31 @@
+spring.application.name=springboot-project-exp4
+
+server.servlet.context-path=/projectdemo
+server.port=8081
+
+
+spring.datasource.username=root
+spring.datasource.password=root
+spring.datasource.url=jdbc:mysql://localhost:3306/dev_config
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
+
+
+#Log Levels
+logging.level.org.springframework=INFO
+logging.level.com.jsp.exp.project=DEBUG
+
+# Log Thresolds
+#logging.threshold.console=DEBUG
+#logging.threshold.file=DEBUG
+
+# Log to File
+logging.file.name=app.log
+#logging.file.path=${java.io.tmpdir}
+
+# Log Patterns
+logging.pattern.console=%d{yyyy-MM-dd HH:mm:ss} %highlight(%-5level) [%thread]  %cyan(%logger{36}): %msg%n
+logging.pattern.file=%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n

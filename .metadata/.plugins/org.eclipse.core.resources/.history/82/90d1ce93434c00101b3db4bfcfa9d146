@@ -1,0 +1,175 @@
+package com.jsp.aws.files.service.impl;
+
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
+import org.apache.tika.Tika; // Tika is used to extract text from different file formats
+import org.apache.tika.exception.TikaException;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.jsp.aws.files.config.S3ConfigProvider;
+import com.jsp.aws.files.entity.S3BucketConfigCredentials;
+import com.jsp.aws.files.entity.S3FileMetadata;
+import com.jsp.aws.files.repository.S3BucketConfigRepository;
+import com.jsp.aws.files.repository.S3FileMetadataRepository;
+import com.jsp.aws.files.service.S3Service;
+
+import lombok.RequiredArgsConstructor;
+import software.amazon.awssdk.core.ResponseBytes;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+
+@Service
+@RequiredArgsConstructor
+public class S3ServiceImpl implements S3Service
+{
+
+    // Inject required dependencies
+    private final S3ConfigProvider s3ConfigProvider;
+    private final S3FileMetadataRepository s3FileMetadataRepository;
+    private final S3BucketConfigRepository s3BucketConfigRepository;
+
+    private final Tika tika = new Tika(); // Apache Tika instance for extracting text content
+
+    // Allowed file types for upload (PDF, DOC, DOCX, XML only)
+    private static final List<String> ALLOWED_CONTENT_TYPES = List.of(
+            "application/pdf",
+            "application/msword", // .doc
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
+            "application/xml",
+            "text/xml"
+    );
+
+    // Upload file to S3 with validation, virus scanning, and text extraction
+    public String uploadFile(MultipartFile file) throws IOException 
+    {
+
+        // Step 1: Validate file type
+    	String contentType = file.getContentType();
+    	if (contentType == null && !ALLOWED_CONTENT_TYPES.contains(contentType)) 
+    	{
+    	    throw new IllegalArgumentException("Unsupported or unknown file type: " + contentType);
+    	}
+
+        // Step 2: Check for virus in file
+        if (isInfected(file)) 
+        {
+            throw new SecurityException("Virus detected in file. Upload blocked.");
+        }
+
+        // Step 3: Fetch S3 credentials from DB and get S3 client
+        S3BucketConfigCredentials s3Credentials = getS3BucketConfigCredentials();
+        S3Client s3Client = s3ConfigProvider.getS3Client(
+                s3Credentials.getRegion(),
+                s3Credentials.getAccessKey(),
+                s3Credentials.getSecretKey()
+                );
+
+        String bucketName = s3Credentials.getBucketName();
+
+        // Step 4: Ensure bucket exists (create if not)
+        s3ConfigProvider.checkOrCreateBucket(s3Client, bucketName);
+
+        // Step 5: Generate unique key using UUID
+        String key = UUID.randomUUID() + "_" + file.getOriginalFilename();
+
+        // Step 6: Upload file to S3 bucket
+        PutObjectRequest request = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .contentType(file.getContentType())
+                .build();
+
+        s3Client.putObject(request, RequestBody.fromBytes(file.getBytes()));
+
+//        // Step 7: Extract text from file using Tika
+//        String extractedText = extractText(file);
+
+        // Step 8: Store metadata in the database
+        S3FileMetadata meta = new S3FileMetadata();
+        meta.setKey(key); // File's unique S3 key
+        meta.setFileName(file.getOriginalFilename()); // Original file name
+        meta.setUploadedAt(LocalDateTime.now()); // Timestamp of upload
+//        meta.setExtractedText(extractedText); // Store the extracted text from the file
+        s3FileMetadataRepository.save(meta); // Save metadata in DB
+
+        return key; // Return key as confirmation
+    }
+
+    // Download file from S3 using its key
+    public byte[] downloadFile(String key) {
+        S3BucketConfigCredentials s3Credentials = getS3BucketConfigCredentials();
+        S3Client s3Client = s3ConfigProvider.getS3Client(
+                s3Credentials.getRegion(),
+                s3Credentials.getAccessKey(),
+                s3Credentials.getSecretKey()
+        );
+
+        GetObjectRequest request = GetObjectRequest.builder()
+                .bucket(s3Credentials.getBucketName())
+                .key(key)
+                .build();
+
+        // Return byte[] content of file
+        ResponseBytes<GetObjectResponse> response = s3Client.getObjectAsBytes(request);
+        return response.asByteArray();
+    }
+
+    // Delete file from S3 and delete corresponding metadata from DB
+    public String deleteFile(String key) {
+        S3BucketConfigCredentials s3Credentials = getS3BucketConfigCredentials();
+        S3Client s3Client = s3ConfigProvider.getS3Client(
+                s3Credentials.getRegion(),
+                s3Credentials.getAccessKey(),
+                s3Credentials.getSecretKey()
+        );
+
+        DeleteObjectRequest request = DeleteObjectRequest.builder()
+                .bucket(s3Credentials.getBucketName())
+                .key(key)
+                .build();
+
+        s3Client.deleteObject(request); // Delete file from S3
+
+        // Delete metadata from DB if exists
+        S3FileMetadata meta = s3FileMetadataRepository.findByKey(key);
+        if (meta != null) {
+            s3FileMetadataRepository.delete(meta);
+        }
+
+        return "Deleted: " + key;
+    }
+
+ // Retrieve the most recent S3 bucket config from the database
+    public S3BucketConfigCredentials getS3BucketConfigCredentials() {
+        return s3BucketConfigRepository.findTopByOrderByIdDesc();
+    }
+
+    // Simulate virus detection – in real app, integrate ClamAV or VirusTotal here
+    private boolean isInfected(MultipartFile file) 
+    {
+        // Currently always returns false (no virus detected)
+        return false;
+    }
+
+//    // Extract plain text content from uploaded file using Apache Tika
+//    private String extractText(MultipartFile file) throws IOException 
+//    {
+//        try 
+//        {
+//            return tika.parseToString(file.getInputStream());
+//        }
+//        catch (TikaException e) 
+//        {
+//            throw new IOException("Failed to extract text from file", e);
+//        }
+//    }
+
+}

@@ -1,0 +1,5 @@
+package com.jsp.flight.controller;
+
+public class FlightTrackerController {
+
+}

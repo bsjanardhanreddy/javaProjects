@@ -1,0 +1,12 @@
+package com.jsp.exp.project.controller;
+
+import org.springframework.stereotype.Controller;
+
+import lombok.AllArgsConstructor;
+
+@Controller
+@AllArgsConstructor
+public class CommonController 
+{
+
+}

@@ -1,0 +1,19 @@
+package com.jsp.workqueue.dto;
+
+import org.springframework.data.domain.Page;
+
+import com.jsp.workqueue.entity.ChannelEntity;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
+public class AppResponceDTO
+{
+	private String status;
+	private String statusCode;
+	private String error;
+	private Object data;
+
+}

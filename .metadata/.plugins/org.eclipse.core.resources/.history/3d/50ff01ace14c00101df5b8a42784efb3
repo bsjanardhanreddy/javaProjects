@@ -1,0 +1,17 @@
+package com.jsp.workqueue;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+
+//@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.jsp.workqueue","com.jsp.sm"},exclude = DataSourceAutoConfiguration.class)
+public class WorkqueueApplication 
+{
+
+	public static void main(String[] args)
+	{
+		SpringApplication.run(WorkqueueApplication.class, args);
+	}
+
+}

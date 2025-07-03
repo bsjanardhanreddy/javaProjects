@@ -1,0 +1,13 @@
+package com.jsp.exp.project.service;
+
+import com.jsp.exp.project.dto.AppResponceDTO;
+
+public interface GetWorqueueService 
+{
+	
+	public AppResponceDTO getWorqueueService()
+	{
+		return null;
+		
+	}
+}

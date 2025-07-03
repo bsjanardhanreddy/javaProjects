@@ -1,0 +1,35 @@
+package com.jsp.workqueue.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
+@Configuration
+@EnableTransactionManagement
+public class MysqlConfig 
+{
+	@Bean
+	public HikariConfig getDataSource() 
+	{
+		/*
+		 * HikariConfig hikariConfig =new HikariConfig ();
+		 * hikariConfig.setJdbcUrl(null); hikariConfig.setUsername("root");
+		 * hikariConfig.setPassword("root");
+		 * hikariConfig.setDriverClassName("com.mysql.cj.jdbc.Driver"); return new
+		 * HikariDataSource(hikariConfig);
+		 
+		 		(or)
+		 */
+		
+		HikariDataSource dataSource=new HikariDataSource();
+		dataSource.setJdbcUrl("jdbc:mysql://localhost:3306/dev_config");
+		dataSource.setUsername("root");
+		dataSource.setPassword("root");
+		dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
+		return dataSource;
+	}
+
+}

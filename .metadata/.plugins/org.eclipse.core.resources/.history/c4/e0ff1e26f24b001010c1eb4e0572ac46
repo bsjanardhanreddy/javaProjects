@@ -1,0 +1,7 @@
+package com.jsp.exp.project.service.impl;
+
+import com.jsp.exp.project.service.CommonService;
+
+public class CommonServiceImpl implements CommonService {
+
+}
