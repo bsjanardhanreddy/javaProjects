@@ -1,9 +1,117 @@
 cd path/to/javaResources      # Go into your local project directory
-
-git init                      # ✅ Initialize Git repo
-git add .                     # Add all files
+git init                                  ✅ Initialize Git repo
+git add .                       Add all files
 git commit -m "Initial commit"
-git branch -M main            # Rename branch to main (if needed)
-
-git remote add origin https://github.com/bsjanardhanreddy/javaResources.git
 git push -u origin main       # Push to GitHub
+git branch -M main            # Rename branch to main (if needed)
+git remote add origin https://github.com/bsjanardhanreddy/javaResources.git
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Here are Git remote-related commands in a clear and structured way:
+________________________________________
+✅ 1. Add a Remote Repository
+git remote add origin https://github.com/username/repo-name.git
+•	Adds a remote called origin pointing to the given GitHub repo.
+•	origin is the default name for the remote.
+________________________________________
+✅ 2. View All Remotes
+git remote -v
+•	Lists all remotes with their URLs.
+•	Helpful to verify the remote URL.
+________________________________________
+✅ 3. Change Remote URL
+git remote set-url origin https://github.com/username/new-repo.git
+•	Updates the URL for the existing remote (origin).
+________________________________________
+✅ 4. Remove a Remote
+git remote remove origin
+•	Removes the remote named origin.
+________________________________________
+✅ 5. Rename a Remote
+git remote rename old-name new-name
+•	Renames a remote from old-name to new-name.
+________________________________________
+✅ 6. Fetch from Remote
+git fetch origin
+•	Gets the latest changes from the remote without merging.
+________________________________________
+✅ 7. Pull from Remote
+git pull origin main
+•	Gets changes from the remote and merges into your current branch.
+________________________________________
+✅ 8. Push to Remote
+git push origin main
+•	Pushes your local main branch to the remote origin.
+________________________________________
+✅ 9. Show More Info About Remote
+git remote show origin
+•	Displays detailed information about the remote.
+________________________________________
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Here are Git branch-related commands explained with what they do and how to use them:
+________________________________________
+🌿 Git Branch Commands: What & How
+________________________________________
+✅ 1. View All Branches
+git branch
+•	Shows local branches only.
+•	The current branch is marked with a *.
+git branch -a
+•	Shows local and remote branches.
+________________________________________
+✅ 2. Create a New Branch
+git branch feature-login
+•	Creates a new branch called feature-login, but does NOT switch to it.
+________________________________________
+✅ 3. Create & Switch to New Branch (Shortcut)
+git checkout -b feature-login
+or (Recommended for newer Git versions)
+git switch -c feature-login
+•	Creates and immediately switches to the new branch.
+________________________________________
+✅ 4. Switch to an Existing Branch
+git checkout main
+or
+git switch main
+•	Changes your working directory to the main branch.
+________________________________________
+✅ 5. Rename Current Branch
+git branch -m new-branch-name
+•	Renames the current branch.
+git branch -m old-name new-name
+•	Renames a specific branch.
+________________________________________
+✅ 6. Delete a Local Branch
+git branch -d branch-name
+•	Deletes a branch safely (only if it's fully merged).
+git branch -D branch-name
+•	Force deletes a branch (even if not merged).
+________________________________________
+✅ 7. Delete a Remote Branch
+git push origin --delete branch-name
+•	Removes the branch from the remote (origin).
+________________________________________
+✅ 8. Push a New Local Branch to Remote
+git push -u origin feature-login
+•	Pushes the branch and sets it to track the remote branch.
+________________________________________
+✅ 9. Merge a Branch into Current Branch
+git merge feature-login
+•	Merges feature-login into your current branch (e.g., main).
+________________________________________
+✅ 10. List Branches Merged Into Current
+git branch --merged
+________________________________________
+✅ 11. List Branches NOT Merged
+git branch --no-merged
+________________________________________
+✅ 12. Check Which Branch You’re On
+git status
+•	Shows the current branch and staged/unstaged changes.
+________________________________________
+Would you like visual examples (like branch trees) or real-time examples with conflict resolution too?
+
+
+
