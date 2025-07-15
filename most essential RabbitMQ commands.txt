@@ -1,0 +1,51 @@
+Here are the most essential RabbitMQ commands you'll need for basic setup, plugin management, user and queue operations — all run from:
+F:\RabbitMQ Server\rabbitmq_server-4.1.2\sbin>
+________________________________________
+🛠️ 1. Service Management
+Description	Command
+Stop RabbitMQ	rabbitmq-service stop
+Start RabbitMQ	rabbitmq-service start
+Restart RabbitMQ	rabbitmq-service stop → start
+Check service status	rabbitmqctl status
+________________________________________
+🔌 2. Plugin Management
+Action	Command
+List all plugins	rabbitmq-plugins list
+Enable management UI	rabbitmq-plugins enable rabbitmq_management
+Disable a plugin	rabbitmq-plugins disable <plugin_name>
+________________________________________
+👤 3. User Management
+Action	Command
+Add new user	rabbitmqctl add_user myuser mypassword
+Set user tag (admin)	rabbitmqctl set_user_tags myuser administrator
+Set user permissions	rabbitmqctl set_permissions -p / myuser ".*" ".*" ".*"
+List all users	rabbitmqctl list_users
+Delete a user	rabbitmqctl delete_user myuser
+📝 -p / refers to the default virtual host (/).
+________________________________________
+📦 4. Virtual Host (vhost) Management
+Action	Command
+Add a virtual host	rabbitmqctl add_vhost myvhost
+Delete a virtual host	rabbitmqctl delete_vhost myvhost
+List virtual hosts	rabbitmqctl list_vhosts
+Set permissions on vhost	rabbitmqctl set_permissions -p myvhost myuser ".*" ".*" ".*"
+________________________________________
+📮 5. Queue and Exchange Management (via CLI or scripts)
+These are usually done via code (Java, Python, etc.) or via the Management UI (http://localhost:15672).
+But if needed, you can also use the HTTP API (curl/Postman) or use scripts.
+________________________________________
+🧹 6. Reset RabbitMQ (for dev/testing only)
+⚠️ Warning: This will delete all users, queues, exchanges, etc.
+rabbitmqctl stop_app
+rabbitmqctl reset
+rabbitmqctl start_app
+________________________________________
+🔍 7. Check RabbitMQ Ports
+RabbitMQ commonly uses:
+Purpose	Port
+AMQP protocol	5672
+Management UI (HTTP)	15672
+CLI tool communication	25672
+________________________________________
+Let me know if you're using it in Java Spring Boot, and I’ll share how to connect your app to RabbitMQ properly.
+
